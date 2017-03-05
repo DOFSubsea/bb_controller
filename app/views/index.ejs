@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang='en'>
+  <head>
+    <meta charset='utf-8'>
+    <title>Status</title>
+    <meta name='description' content='none'>
+    <meta name='author' content='none'>
+  </head>
+  <body style='text-align: center;'>
+    <div>
+      <h3>Device Status</h3>
+      <hr>
+      <div>
+        <% if (settings && settings.serial) { %>
+          <div>
+            <div><b>Port:</b> <%= settings.serial.port %></div>
+            <div><b>Baud:</b> <%= settings.serial.baudrate %></div>
+            </br>
+            <div id='last-received'>Waiting...</div>
+            </br>
+            <div><b>Last Update (UTC): </b><span id='last-database-update'>Unknown</span></div>
+          </div>
+          <hr>
+        <% } %>
+      </div>
+    <div>
+      <a href='/configure'><button>Configure</button></a>
+      <a href='/restart'><button>Restart Device</button></a>
+    </div>
+    <script type='text/javascript'>
+      let getDeviceStatus = () => {
+        let xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+          if (this.readyState === 4 && this.status < 400){
+            let status = JSON.parse(this.responseText);
+            let lastRecieved = document.getElementById('last-received');
+            let lastDatabaseUpdate = document.getElementById('last-database-update');
+            lastRecieved.innerHTML = status.lastReceived;
+            lastDatabaseUpdate.innerHTML = status.lastDatabaseUpdate;
+					}
+        }
+        xhr.open('GET', '/status')
+        xhr.send();
+      }
+      setInterval(getDeviceStatus, 1000);
+    </script>
+  </body>
+</html>

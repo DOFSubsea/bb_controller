@@ -1,0 +1,22 @@
+{
+  "name": "bb_ui",
+  "version": "0.0.9",
+  "description": "provide ui for configuring beaglebone that reads gps and sends the data to remote server(s)",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ryan Ledford",
+  "license": "ISC",
+  "devDependencies": {
+    "morgan": "^1.7.0",
+    "nodemon": "^1.11.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "ejs": "^2.5.5",
+    "express": "^4.14.0",
+    "request": "^2.80.0",
+    "serialport": "^4.0.7"
+  }
+}

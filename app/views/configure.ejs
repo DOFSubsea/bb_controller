@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Configure
+    </title>
+  </head>
+  <body style='text-align: center'>
+    <div>
+      <h3>Configure Device</h3>
+    </div>
+    <hr>
+    <form id='config-form' method='POST' action='/configure'>
+      <div>
+        <div><b>GPS Input</b></div>
+        <label for='baudrate'>Baud Rate</label>
+        <select name='baudrate' id='baudrate'>
+          <% var baudrates = [4800,9600,19200,38400,57600,115200] %>
+          <% for (var i = 0; i < baudrates.length; i++) { %>
+            <option value=<%= baudrates[i] %>
+              <% if (baudrates[i] == settings.serial.baudrate) { %>selected<% } %>><%= baudrates[i] %>
+            </option>
+          <% } %>
+        </select>
+      </div>
+      <hr>
+      <div>
+        <div><b>API Settings</b></div>
+        <div>
+          <input type='radio' name='target' value='thingspeak' onchange='onAPITargetChange("thingspeak")'
+            <% if (settings.api.target == 'thingspeak') { %>checked<% } %>>ThingSpeak</input>
+          <input type='radio' name='target' value='seastate' onchange='onAPITargetChange("seastate")'
+            <% if (settings.api.target == 'seastate') { %>checked<% } %>>SeaState</input>
+        </div>
+        <div>
+          <div>
+            <label for='frequency'>Update every </label>
+            <select name='frequency'>
+              <% var freq = [3,5,10] %>
+              <% for (var i = 0; i < freq.length; i++) { %>
+                <option value=<%= freq[i] %>
+                  <% if (settings.api.frequency == freq[i]) { %>selected<% } %>><%= freq[i] %>
+                </option>
+              <% } %>
+            </select>
+            minutes
+        </div>
+        <div id='api-target'>
+          <% if (settings.api.target == 'thingspeak') { %>
+            <% include thingspeak.settings.ejs %>
+          <% } else { %>
+            <% include seastate.settings.ejs %>
+          <% } %>
+        </div>
+      </div>
+      <hr>
+      <a href='/'><button type='button' name='cancel'>Cancel</button></a>
+      <button type='submit'>Save</button>
+    </form>
+
+    <!-- the form below is only used to create elements that will be swapped in the visible form -->
+    <form id='hidden'>
+      <div id='seastate-settings' style='display: none'>
+        <% include seastate.settings.ejs %>
+      </div>
+      <div id='thingspeak-settings' style='display: none'>
+        <% include thingspeak.settings.ejs %>
+      </div>
+    </form>
+
+    <script type='text/javascript'>
+      //stringify the settings arg and parse
+      "use strict";
+      var settings = JSON.parse('<%- JSON.stringify(settings) %>');
+      var seastateHTML = document.getElementById('seastate-settings').innerHTML
+      var thingspeakHTML = document.getElementById('thingspeak-settings').innerHTML
+      var onAPITargetChange = (target) => {
+        let apiTarget = document.getElementById('api-target');
+        apiTarget.innerHTML = target === 'seastate' ? seastateHTML : thingspeakHTML;
+      }
+    </script>
+  </body>
+</html>
