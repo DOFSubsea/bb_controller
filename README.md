@@ -58,7 +58,7 @@ Provides a Node server with routes that allow users to monitor and configure the
         <code>npm install</code> - this installs all the dependencies required for bb_controller to run.
       </li>
       <li>
-        <code>sudo chmod u+x start_bb_controller.sh</code> - this will ensure that the startup script has permission to execute.
+        <code>sudo chmod +x start_bb_controller.sh</code> - this will ensure that the startup script has permission to execute.
       </li>
       <li>
         <code>sudo nano /etc/rc.local</code> - edit the rc.local file - this file is executed by the operating system on startup.
