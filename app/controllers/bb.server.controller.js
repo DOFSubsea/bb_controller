@@ -86,6 +86,7 @@ var getGPSData = () => {
 
 var updateThingSpeak = () => {
   updateInProgress = true;
+  console.log('updating thingspeak');
 	try {
 		let data = getGPSData();
     let query = qs.stringify({api_key: config.api.key, field1: data.latDD, field2: data.lonDD, field3: data.time});
@@ -107,6 +108,7 @@ var updateThingSpeak = () => {
 
 var updateSeaState = () => {
   updateInProgress = true;
+  console.log('updating seastate');
 	try {
     let data = getGPSData();
     lastUpdateTime = Date.now();
@@ -121,9 +123,8 @@ var updateSeaState = () => {
 };
 
 var updateRemoteDatabase = () => {
-  console.log('updating remote database');
+  if (updateInProgress) return;
   statusMessage = 'Updating remote database.';
-  if (updateInProgress) return console.log('update in progress');
   if (config.api.target === 'thingspeak') {
     updateThingSpeak();
   } else {
@@ -149,6 +150,7 @@ exports.init = () => {
     lastReceived = data;
     lastReceivedTime = Date.now();
     const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+    //const freq = 5000;//5 seconds for testings
     if (Date.now() - lastUpdateTime > freq) {
       updateRemoteDatabase();
     }
