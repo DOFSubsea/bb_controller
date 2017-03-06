@@ -58,7 +58,7 @@ Provides a Node server with routes that allow users to monitor and configure the
         <code>npm install</code> - this installs all the dependencies required for bb_controller to run.
       </li>
       <li>
-        <code>ln -s bb_controller.service /etc/systemd/system/multi-user.target.wants/bb_controller.service</code> - this creates a symbolic link to the bb_controller.service file so that it will be started when the device boots. This also ensures that any updates to this file on GitHub will take effect the next time the service is started.
+        <code>sudo ln -s bb_controller.service /etc/systemd/system/multi-user.target.wants/bb_controller.service</code> - this creates a symbolic link to the bb_controller.service file so that it will be started when the device boots. This also ensures that any updates to this file on GitHub will take effect the next time the service is started.
       </li>
     </ul>
   </li>
