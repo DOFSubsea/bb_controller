@@ -85,7 +85,6 @@ var updateThingSpeak = () => {
 	try {
 		let data = getGPSData();
     let query = qs.stringify({api_key: config.api.key, field1: data.latDD, field2: data.lonDD, field3: data.time});
-    console.log(query);
     /*
     let req = request('https://api.thingspeak.com/update.json?'+query, (err, res, body) => {
       if (err) {
@@ -103,7 +102,6 @@ var updateThingSpeak = () => {
 var updateSeaState = () => {
 	try {
     let data = getGPSData();
-    console.log(data);
     lastDatabaseUpdate = new Date().toLocaleString();
 	} catch (e) {
 		console.log(e);
