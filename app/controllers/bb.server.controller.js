@@ -141,8 +141,6 @@ exports.init = () => {
     lastReceived = data;
     lastReceivedTime = Date.now();
     const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-    //console.log("frequency (ms): "+freq);
-    //console.log("now - lastDatabaseUpdate: "+(Date.now() - lastDatabaseUpdate));
     if (Date.now() - lastDatabaseUpdate > freq) {
       updateRemoteDatabase();
     }
