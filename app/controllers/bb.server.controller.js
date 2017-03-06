@@ -6,7 +6,8 @@ var SerialPort = require('serialport'),
     ser = null,
     lastReceived = "No GPS data received",
     lastReceivedTime = Date.now(),
-		lastDatabaseUpdate = Date.now(),
+		lastUpdateTime = Date.now(),
+    updateInProgress = false,
     statusMessage = 'Device started: '+new Date().toLocaleString(),
     configFilePath = process.cwd()+'/config/bb.config.json',
     config = {};
@@ -84,6 +85,7 @@ var getGPSData = () => {
 };
 
 var updateThingSpeak = () => {
+  updateInProgress = true;
 	try {
 		let data = getGPSData();
     let query = qs.stringify({api_key: config.api.key, field1: data.latDD, field2: data.lonDD, field3: data.time});
@@ -91,31 +93,37 @@ var updateThingSpeak = () => {
       if (err) {
         statusMessage = 'Unable to update ThingSpeak database: '+err.toString();
       } else {
-        lastDatabaseUpdate = Date.now();
+        lastUpdateTime = Date.now();
         statusMessage = 'Updated ThingSpeak database @ '+new Date().toLocaleString();
       }
+      updateInProgress = false;
     });
 	} catch (e) {
     console.log(e);
 		statusMessage = e.toString();
+    updateInProgress = false;
 	}
 };
 
 var updateSeaState = () => {
+  updateInProgress = true;
 	try {
     let data = getGPSData();
-    lastDatabaseUpdate = Date.now();
+    lastUpdateTime = Date.now();
     statusMessage = 'Updated SeaState database @ '+new Date().toLocaleString();
-    lastDatabaseUpdate = Date.now();
+    lastUpdateTime = Date.now();
+    updateInProgress = false;
 	} catch (e) {
 		console.log(e);
     statusMessage = e.toString();
+    updateInProgress = false;
 	}
 };
 
 var updateRemoteDatabase = () => {
   console.log('updating remote database');
   statusMessage = 'Updating remote database.';
+  if (updateInProgress) return console.log('update in progress');
   if (config.api.target === 'thingspeak') {
     updateThingSpeak();
   } else {
@@ -141,7 +149,7 @@ exports.init = () => {
     lastReceived = data;
     lastReceivedTime = Date.now();
     const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-    if (Date.now() - lastDatabaseUpdate > freq) {
+    if (Date.now() - lastUpdateTime > freq) {
       updateRemoteDatabase();
     }
   });
@@ -188,7 +196,7 @@ exports.readStatus = (req, res) => {
   res.json({
     lastReceived: lastReceived,
     lastReceivedTime: lastReceivedTime,
-    lastDatabaseUpdate: lastDatabaseUpdate,
+    lastUpdateTime: lastUpdateTime,
     statusMessage: statusMessage
   });
 };
