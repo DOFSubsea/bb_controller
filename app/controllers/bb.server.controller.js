@@ -20,18 +20,25 @@ var fs = require('fs'),
 
 var restartServer = () => {
   console.log('restarting server');
+  /**
+   * The exec command purposely changes the nodemone.restart.js file because it will
+   * cause nodemon to restart the server when it detects the change to the file.
+   * This will allow the server to recover if it has crashed for some reason.
+   */
   exec("echo var LAST_RESTART=\"'$(date)'\" > nodemon.restart.js", (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
   });
 };
 
 var restartDevice = () => {
+  //Sends the shutdown command to the operating system
   exec('shutdown -r now', (err, stdout, stderr) => {
     console.log(err, stdout, stderr);
   });
 };
 
 var generateDefaultConfig = () => {
+  //creates a default runtime configuration
   config = {
     "serial": {
       "port": "/dev/ttyO4",
@@ -48,6 +55,7 @@ var generateDefaultConfig = () => {
 };
 
 var saveConfig = () => {
+  //saves the configuration to the configFilePath
   try {
     fs.writeFileSync(configFilePath, JSON.stringify(config), {encoding: 'utf-8'});
     console.log('Configuration saved.');
@@ -57,6 +65,7 @@ var saveConfig = () => {
 };
 
 var loadConfig = () => {
+  //loads the configuration from the configFilePath
   try {
     if (!fs.existsSync(configFilePath)){
       console.log('No config file exists. Loading with default settings.');
@@ -73,25 +82,34 @@ var loadConfig = () => {
 };
 
 var getGPSData = () => {
+  //parses the lastReceived data string which should be a NMEA $GPGGA string
 	let fields = lastReceived.split(',');
 	if (fields.length !== 15) {
 		throw new Error('Error parsing GPS data: field count should be 15 - got '+fields.length);
 	}
+  //GPS time not system time
 	let time = Number(fields[1]);
+  //GPS latitude split into degrees and decimal minutes
 	let lat = {degrees: Number(fields[2].slice(0,2)), minutes: Number(fields[2].slice(2))};
-  let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);//decimal degrees
+  //latitude as decimal degrees
+  let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);
+  //latitude direction (N,S)
 	let latDir = fields[3];
+  //GPS longitude split into degrees and decimal minutes
 	let lon = {degrees: Number(fields[4].slice(0,3)), minutes: Number(fields[4].slice(3))};
-  let lonDD = (lon.degrees + lon.minutes/60.0).toFixed(4);//decimal degrees
-  
+  //longitude as decimal degrees
+  let lonDD = (lon.degrees + lon.minutes/60.0).toFixed(4);
+  //longitude direction (E,W)
 	let lonDir = fields[5];
-	let quality = Number(fields[6]);
+	let quality = Number(fields[6]) || 0;//if null or undefined is returned make sure 0 is set
 
+  //inverse sign if longitude is W
 	if (lonDir === 'W') {
     lon.degress *= -1;
 		lonDD *= -1;
 	}
 
+  //do not accept the position data if quality is 0
 	if (quality == 0) {
 		throw new Error('GPS fix not valid');
 	}
@@ -100,6 +118,7 @@ var getGPSData = () => {
 };
 
 var updateThingSpeak = () => {
+  //send data to ThingSpeak
   console.log('updating thingspeak');
 	try {
 		let data = getGPSData();
@@ -121,6 +140,7 @@ var updateThingSpeak = () => {
 };
 
 var updateSeaState = () => {
+  //send data to SeaState directly
   console.log('updating seastate');
 	try {
     let data = getGPSData();
@@ -136,13 +156,13 @@ var updateSeaState = () => {
 };
 
 var updateRemoteDatabase = () => {
-  if (updateInProgress) return;
   /**
    * before updating, set updateInProgress to true and
    * add some time to the lastUpdateTime so the update function(s)
    * are not called repeatedly in case an error occurs
    * or the internet is slow.
    */
+  if (updateInProgress) return;
   updateInProgress = true;
   lastUpdateTime += 5000;
   statusMessage = 'Updating remote database.';
@@ -154,6 +174,10 @@ var updateRemoteDatabase = () => {
 };
 
 exports.init = () => {
+  /**
+   * load the configuration setup the serial ports
+   * and define on('event') functions
+   */
   loadConfig();
   console.log('initializing serial port');
   ser = new SerialPort(config.serial.port,
@@ -179,6 +203,10 @@ exports.init = () => {
 };
 
 exports.updateConfig = (req, res) => {
+  /**
+   * update the configuration in memory, save it,
+   * and apply updates to the serial port
+   */
   console.log(req.body);
   const params = req.body;
   config.serial.baudrate = params.baudrate;
@@ -205,14 +233,17 @@ exports.updateConfig = (req, res) => {
 };
 
 exports.getConfig = () => {
+  //used to provide access to the config var outside of this file
   return config;
-};
+}
 
 exports.readConfig = (req, res) => {
-  res.json(getConfig());
+  //respond with the config that is in memory
+  res.json(config);
 };
 
 exports.readStatus = (req, res) => {
+  //respond with the current status of the device
   if (Date.now() - lastReceivedTime > MAX_TIMEOUT) {
     lastReceived = 'No GPS data received.'
   }
@@ -228,5 +259,9 @@ exports.isOpen = (req, res) => {
   return ser && ser.isOpen();
 };
 
+/**
+ * Restart nodemon manually every MAX_UPTIME in case
+ * it has crashed for any reason
+ */
 setTimeout(restartServer, MAX_UPTIME);
 
