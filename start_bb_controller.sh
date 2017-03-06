@@ -2,7 +2,7 @@
 #service should have its working directory set to /home/debian/bb_controller
 cd /home/debian/bb_controller
 echo "$(date)" > startup.log
-echo "Waiting to ensure all resources are available..."
+echo "Waiting to ensure all resources are available..." >> startup.log
 sleep 15
 echo "Starting nodemon..." >> startup.log
 /usr/bin/tmux new-session -d -s server "/usr/local/bin/nodemon server"
