@@ -22,7 +22,7 @@ Provides a Node server with routes that allow users to monitor and configure the
     Enable UART Ports
     <ul>
       <li>
-        Enter the following command to begin editing the uEvt file. <code>sudo nano /ect/uEvt.txt</code>
+        Enter the following command to begin editing the uEvt file. <code>sudo nano /boot/uEvt.txt</code>
       </li>
       <li>
         Use the arrow keys to navigate to the bottom of the file and add the following line: <code>cape_enable=bone_capemgr.enable_partno=BB-UART2,BB-UART4</code>. Press <code>Ctrl-o</code> and then press <code>Enter</code> to save the changes.
@@ -57,6 +57,15 @@ Provides a Node server with routes that allow users to monitor and configure the
       <li>
         <code>npm install</code> - this installs all the dependencies required for bb_controller to run.
       </li>
+      <li>
+        <code>ln -s bb_controller.service /etc/systemd/system/multi-user.target.wants/bb_controller.service</code> - this creates a symbolic link to the bb_controller.service file so that it will be started when the device boots. This also ensures that any updates to this file on GitHub will take effect the next time the service is started.
+      </li>
     </ul>
   </li>
-</div>
+  <li>
+    Restart the device with <code>sudo reboot now</code>
+  </li>
+  <li>
+    After the device reboots, open a web browser and type the IP address of the device into the address bar. You should see the device status page that shows some basic information about the device. Click the <em>Configure</em> button, edit the device configuration, and click <em>Save</em>. The changes take effect immediately and do not require the device to be restarted.
+  </li>
+</ul>
