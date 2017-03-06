@@ -1,6 +1,7 @@
 "use strict";
 
 const MAX_TIMEOUT = 5000;//5 seconds
+const MAX_UPTIME = 3000;//8.64e7;//24 hours
 
 var SerialPort = require('serialport'),
     ser = null,
@@ -14,7 +15,21 @@ var SerialPort = require('serialport'),
 
 var fs = require('fs'),
     qs = require('querystring'),
-    request = require('request');
+    request = require('request'),
+    exec = require('child_process').exec;
+
+var restartServer = () => {
+  console.log('restarting server');
+  exec("echo var LAST_RESTART=\"'$(date)'\" > nodemon.restart.js", (err, stdout, stderr) => {
+    console.log(err, stdout, stderr);
+  });
+};
+
+var restartDevice = () => {
+  exec('shutdown -r now', (err, stdout, stderr) => {
+    console.log(err, stdout, stderr);
+  });
+};
 
 var generateDefaultConfig = () => {
   config = {
@@ -212,4 +227,6 @@ exports.readStatus = (req, res) => {
 exports.isOpen = (req, res) => {
   return ser && ser.isOpen();
 };
+
+setTimeout(restartServer, MAX_UPTIME);
 

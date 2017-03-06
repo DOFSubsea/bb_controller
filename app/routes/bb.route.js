@@ -1,5 +1,4 @@
-var exec = require('child_process').exec,
-    bbController = require('../controllers/bb.server.controller');
+var bbController = require('../controllers/bb.server.controller');
 
 module.exports = (app) => {
   app.route('/')
@@ -21,8 +20,7 @@ module.exports = (app) => {
 		res.render('restart');
 	})
 	.post((req, res) => {
-		exec('shutdown -r now', (err, stdout, stderr) => {
-			console.log(err, stdout, stderr);
-		});
+    res.send();
+		bbController.restartDevice();
 	});
 }
