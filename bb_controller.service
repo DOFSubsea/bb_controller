@@ -8,7 +8,7 @@ OnStartupSec=30
  
 [Service]
 WorkingDirectory=/home/debian/bb_controller
-ExecStart=/usr/bin/node server
+ExecStart=/usr/bin/nodemon server
 Restart=always
 RestartSec=10
 StartLimitInterval=0
