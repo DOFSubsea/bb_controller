@@ -39,7 +39,7 @@ Provides a Node server with routes that allow users to monitor and configure the
         Change the line that reads <code>ListenStream=80</code> to <code>ListenStream=8080</code> - it doesn't <em>really</em> matter what you change it to as long is it's not 22, 23, 80, or 443.
       </li>
       <li>
-        Press <code>Ctrl-o</code> and then press <code>Enter</code> to save the changes.
+        Press <code>Ctrl-o</code> then press <code>Enter</code> to save the changes, then press <code>Ctrl+x</code> to exit.
       </li>
     </ul>
   <li>
@@ -58,7 +58,15 @@ Provides a Node server with routes that allow users to monitor and configure the
         <code>npm install</code> - this installs all the dependencies required for bb_controller to run.
       </li>
       <li>
-        <code>sudo ln -s bb_controller.service /etc/systemd/system/multi-user.target.wants/bb_controller.service</code> - this creates a symbolic link to the bb_controller.service file so that it will be started when the device boots. This also ensures that any updates to this file on GitHub will take effect the next time the service is started.
+        <code>sudo chmod u+x start_bb_controller.sh</code> - this will ensure that the startup script has permission to execute.
+      </li>
+      <li>
+        <code>sudo nano /etc/rc.local</code> - edit the rc.local file - this file is executed by the operating system on startup.
+        <ul>At the bottom of the file but <b>above <code>exit 0</code></b> add the following lines
+          <li><code>sleep 1</code></li>
+          <li><code>/home/debian/bb_controller/start_bb_controller.sh</code></li>
+          <li>Press <code>Ctrl-o</code> then press <code>Enter</code> to save the changes, then press <code>Ctrl+x</code> to exit.</li>
+        </ul>
       </li>
     </ul>
   </li>
@@ -66,6 +74,6 @@ Provides a Node server with routes that allow users to monitor and configure the
     Restart the device with <code>sudo reboot now</code>
   </li>
   <li>
-    After the device reboots, open a web browser and type the IP address of the device into the address bar. You should see the device status page that shows some basic information about the device. Click the <em>Configure</em> button, edit the device configuration, and click <em>Save</em>. The changes take effect immediately and do not require the device to be restarted.
+    After the device reboots and starts bb_controller (altogether about 45 seconds), open a web browser and type the IP address of the device into the address bar. You should see the device status page that shows some basic information about the device. Click the <em>Configure</em> button, edit the device configuration, and click <em>Save</em>. The changes take effect immediately and do not require the device to be restarted.
   </li>
 </ul>
