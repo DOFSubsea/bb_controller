@@ -7,23 +7,29 @@
     <meta name='author' content='none'>
   </head>
   <body style='text-align: center;'>
-    <div>Test autoupdate from GitHub 2.</div>
     <div>
       <h3>Device Status</h3>
       <hr>
       <div>
-        <% if (settings && settings.serial) { %>
-          <div>
-            <div><b>Port:</b> <%= settings.serial.port %></div>
-            <div><b>Baud:</b> <%= settings.serial.baudrate %></div>
-            </br>
-            <div id='last-received'>Waiting...</div>
-            </br>
-            <div><b>Last Update (UTC): </b><span id='last-database-update'>Unknown</span></div>
-          </div>
-          <hr>
+        <div><b>Port:</b> <%= settings.serial.port %></div>
+        <div><b>Baud:</b> <%= settings.serial.baudrate %></div>
+        </br>
+        <div><b>Target:</b> <%= settings.api.target.toUpperCase() %></div>
+        <% if (settings.api.target == 'thingspeak') { %>
+          <div><b>Channel:</b> <%= settings.api.channel %></div>
+          <div><b>API Key:</b> <%= settings.api.key %></div>
+        <% } else { %>
+          <div><b>Vessel ID:</b> <%= settings.api.vin %></div>
         <% } %>
+        <div>Updates every <b style='font-size: 1.25em;'><%= settings.api.frequency %></b> minutes</div>
+        <hr>
+        <div><b>Incoming Data</b></div>
+        <div id='last-received'>Getting GPS input data...</div>
+        <hr>
+        <div><b>Status Message</b></div>
+        <div id='status-message'>Getting status...</div>
       </div>
+      <hr>
     <div>
       <a href='/configure'><button>Configure</button></a>
       <a href='/restart'><button>Restart Device</button></a>
@@ -35,9 +41,9 @@
           if (this.readyState === 4 && this.status < 400){
             let status = JSON.parse(this.responseText);
             let lastRecieved = document.getElementById('last-received');
-            let lastDatabaseUpdate = document.getElementById('last-database-update');
+            let message = document.getElementById('status-message');
             lastRecieved.innerHTML = status.lastReceived;
-            lastDatabaseUpdate.innerHTML = status.lastDatabaseUpdate;
+            message.innerHTML = status.statusMessage;
 					}
         }
         xhr.open('GET', '/status')

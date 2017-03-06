@@ -6,7 +6,8 @@ var SerialPort = require('serialport'),
     ser = null,
     lastReceived = "No GPS data received",
     lastReceivedTime = Date.now(),
-		lastDatabaseUpdate = 'Unknown',
+		lastDatabaseUpdate = Date.now(),
+    statusMessage = 'Device started: '+new Date().toLocaleString(),
     configFilePath = process.cwd()+'/config/bb.config.json',
     config = {};
 
@@ -43,6 +44,7 @@ var loadConfig = () => {
   try {
     if (!fs.existsSync(configFilePath)){
       console.log('No config file exists. Loading with default settings.');
+      statusMessage = 'Using default configuration.';
       generateDefaultConfig();
       saveConfig();
     } else {
@@ -57,7 +59,7 @@ var loadConfig = () => {
 var getGPSData = () => {
 	let fields = lastReceived.split(',');
 	if (fields.length !== 15) {
-		throw new Error('GPS field count should be 15 - got '+fields.length);
+		throw new Error('Error parsing GPS data: field count should be 15 - got '+fields.length);
 	}
 	let time = Number(fields[1]);
 	let lat = {degrees: Number(fields[2].slice(0,2)), minutes: Number(fields[2].slice(2))};
@@ -85,30 +87,35 @@ var updateThingSpeak = () => {
 	try {
 		let data = getGPSData();
     let query = qs.stringify({api_key: config.api.key, field1: data.latDD, field2: data.lonDD, field3: data.time});
-    /*
     let req = request('https://api.thingspeak.com/update.json?'+query, (err, res, body) => {
       if (err) {
-        lastDatabaseUpdate = err;
+        statusMessage = 'Unable to update ThingSpeak database: '+err.toString();
       } else {
-        lastDatabaseUpdate = new Date().toLocaleTimeString();
+        lastDatabaseUpdate = Date.now();
+        statusMessage = 'Updated ThingSpeak database @ '+new Date().toLocaleString();
       }
     });
-    */
 	} catch (e) {
-		lastDatabaseUpdate = e.toString();
+    console.log(e);
+		statusMessage = e.toString();
 	}
 };
 
 var updateSeaState = () => {
 	try {
     let data = getGPSData();
-    lastDatabaseUpdate = new Date().toLocaleString();
+    lastDatabaseUpdate = Date.now();
+    statusMessage = 'Updated SeaState database @ '+new Date().toLocaleString();
+    lastDatabaseUpdate = Date.now();
 	} catch (e) {
 		console.log(e);
+    statusMessage = e.toString();
 	}
 };
 
 var updateRemoteDatabase = () => {
+  console.log('updating remote database');
+  statusMessage = 'Updating remote database.';
   if (config.api.target === 'thingspeak') {
     updateThingSpeak();
   } else {
@@ -118,7 +125,7 @@ var updateRemoteDatabase = () => {
 
 exports.init = () => {
   loadConfig();
-  console.log('Initializing serial port.');
+  console.log('initializing serial port');
   ser = new SerialPort(config.serial.port,
   {
     baudRate: Number(config.serial.baudrate),
@@ -126,13 +133,19 @@ exports.init = () => {
   });
 
   ser.on('error', (err) => {
+    statusMessage = err.message;
     console.log(err);
   });
 
   ser.on('data', (data) => {
     lastReceived = data;
     lastReceivedTime = Date.now();
-    updateRemoteDatabase();
+    const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+    //console.log("frequency (ms): "+freq);
+    //console.log("now - lastDatabaseUpdate: "+(Date.now() - lastDatabaseUpdate));
+    if (Date.now() - lastDatabaseUpdate > freq) {
+      updateRemoteDatabase();
+    }
   });
 };
 
@@ -153,8 +166,12 @@ exports.updateConfig = (req, res) => {
   if (ser && ser.isOpen()) {
     ser.update({baudRate: Number(params.baudrate)},
     (err) => {
-	res.redirect('/');
+      statusMessage = 'Configuration successfully updated.'
+	    res.redirect('/');
     });
+  } else {
+    statusMessage = 'Configuration was updated but no serial port is available. Try restarting the device.'
+    res.redirect('/');
   }
 };
 
@@ -168,18 +185,14 @@ exports.readConfig = (req, res) => {
 
 exports.readStatus = (req, res) => {
   if (Date.now() - lastReceivedTime > MAX_TIMEOUT) {
-    res.json({
-      lastReceived: "No GPS data received.",
-      lastReceivedTime: lastReceivedTime,
-      lastDatabaseUpdate: lastDatabaseUpdate
-    });
-  } else {
-    res.json({
-      lastReceived: lastReceived,
-      lastReceivedTime: lastReceivedTime,
-      lastDatabaseUpdate: lastDatabaseUpdate
-    });
+    lastReceived = 'No GPS data received.'
   }
+  res.json({
+    lastReceived: lastReceived,
+    lastReceivedTime: lastReceivedTime,
+    lastDatabaseUpdate: lastDatabaseUpdate,
+    statusMessage: statusMessage
+  });
 };
 
 exports.isOpen = (req, res) => {
