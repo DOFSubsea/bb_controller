@@ -1,7 +1,7 @@
 "use strict";
 
 const MAX_TIMEOUT = 5000;//5 seconds
-const MAX_UPTIME = 3000;//8.64e7;//24 hours
+const MAX_UPTIME = 8.64e7;//24 hours
 
 var SerialPort = require('serialport'),
     ser = null,
