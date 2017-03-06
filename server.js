@@ -8,4 +8,5 @@ var port = process.env.PORT || 80;
 serialController.init();
 
 console.log('listening on port: '+port);
+console.log('git update: 2');
 app.listen(port);
