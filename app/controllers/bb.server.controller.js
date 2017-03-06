@@ -85,7 +85,6 @@ var getGPSData = () => {
 };
 
 var updateThingSpeak = () => {
-  updateInProgress = true;
   console.log('updating thingspeak');
 	try {
 		let data = getGPSData();
@@ -107,7 +106,6 @@ var updateThingSpeak = () => {
 };
 
 var updateSeaState = () => {
-  updateInProgress = true;
   console.log('updating seastate');
 	try {
     let data = getGPSData();
@@ -124,6 +122,14 @@ var updateSeaState = () => {
 
 var updateRemoteDatabase = () => {
   if (updateInProgress) return;
+  /**
+   * before updating, set updateInProgress to true and
+   * add some time to the lastUpdateTime so the update function(s)
+   * are not called repeatedly in case an error occurs
+   * or the internet is slow.
+   */
+  updateInProgress = true;
+  lastUpdateTime += 5000;
   statusMessage = 'Updating remote database.';
   if (config.api.target === 'thingspeak') {
     updateThingSpeak();
