@@ -226,8 +226,7 @@ exports.updateConfig = (req, res) => {
   }
 };
 
-exports.requestDeviceRestart = (req, res) => {
-	res.send('attempting to restart device');
+exports.requestDeviceRestart = () => {
 	restartDevice();
 }
 

@@ -15,9 +15,14 @@ module.exports = (app) => {
   })
   .post(bbController.updateConfig);
 
-  app.route('/restart')
+  app.route('/wait')
   .get((req, res) => {
-		res.render('restart');
-	})
-	.post(bbController.requestDeviceRestart);
+    res.render('wait');
+  });
+
+  app.route('/restart/confirmed')
+  .get((req, res) => {
+    setTimeout(bbController.requestDeviceRestart, 3000);
+    res.redirect('/wait');
+	});
 }

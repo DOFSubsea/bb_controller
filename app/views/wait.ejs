@@ -2,28 +2,30 @@
 <html>
 	<head>
 		<meta http-equiv="refresh" content="90;url=/" />
-		<title>Restart</title>
+		<title>Restarting</title>
 	</head>
-	<body>
+	<body style='text-align: center; padding: 10% 10% 10% 10%;'>
 		<div>
 			The device is restarting. You will be redirected to the status page in <b><span id='time-left' style='color: red;'>90</span></b> seconds.
-		</div>
+      If you are not redirected, <a href='/' alt='status'>click here</a>.
+    </div>
+    </br>
     <div>
-      If you are not redirected after 90 seconds, <a href='/' alt='status'>click here</a>.
+      NOTE: Refreshing this page will reset the above <span style='color: red'>timer</span> but will <b>not</b> cause the device to restart again.
     </div>
 		<script type='text/javascript'>
 			var timeLeft = 90;
 			var timer = function() {
 				timeLeft--;
 				if (timeLeft >= 0) {
-					document.getElementById('time-left').innerHTML = timeLeft;
+					document.getElementById('time-left').innerHTML = timeLeft >= 0 ? timeLeft : 0;
 				}
 			}
 			setInterval(timer, 1000);
 
-			var xhr = new XMLHttpRequest();
+			/*var xhr = new XMLHttpRequest();
 			xhr.open("POST", "/restart", true);
-			xhr.send();
+			xhr.send();*/
 		</script>
 	</body>
 </html>
