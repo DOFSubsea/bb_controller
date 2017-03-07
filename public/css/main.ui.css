@@ -1,0 +1,97 @@
+span {
+	display: inline-block;
+}
+body {
+	background-color: whitesmoke;
+	font-family: 'Courier New','Monaco','San Serif';
+}
+input {
+	margin: 5px 3px 5px 3px;
+	border-radius: 5px;
+}
+input:focus {
+	outline: none;
+}
+.page-title {
+	display: inline-block;
+	padding: 0px 10px 0px 10px;
+	margin: 5px 0px 5px 0px;
+	font-size: 2.25em;
+	font-weight: bold;
+	text-shadow: 2px 2px darkgray;
+}
+.section-area {
+	margin: 0 auto;
+	padding: 5px 0px 5px 0px;
+	background-color: lightgray;
+	border-style: outset;
+	border-width: 3px;
+	border-radius: 3px;
+	overflow: hidden;
+}
+.section-narrow {
+	width: 30%;
+}
+.section-wide {
+	width: 50%;
+}
+.section-wider {
+	width: 75%;
+}
+.section-title {
+	color: darkblue;
+	font-size: 1.15em;
+	font-weight: bold;
+	text-shadow: 1px 1px white;
+}
+.section-item-name {
+	font-weight: bold;
+	text-align: right;
+	min-width: 30%;
+	padding-right: 5px;
+}
+.section-item-value {
+	min-width:45%;
+	text-align: left;
+	text-decoration: underline;
+}
+.number-large {
+	font-size: 1.25em;
+	font-weight: bold;
+}
+.btn {
+	min-width: 64px;
+	height: 33px;
+	border-style: outset;
+	border-radius: 5px;
+	border-width: 2px;
+	text-shadow: 1px 1px gray;
+	font-family: 'Courier New','Monaco','San Serif';
+	font-size: 1em;
+}
+.btn:focus {
+	outline: none;
+}
+.btn:active {
+	border-style: inset;
+}
+.btn-normal {
+	background-color: darkgreen;
+	color: white;
+}
+.btn-normal:hover {
+	background-color: green;
+}
+.btn-normal:active {
+	background-color: darkgreen;
+}
+.btn-warn {
+	background-color: darkred;
+	color: white;
+}
+.btn-warn:hover {
+	background-color: crimson;
+}
+.btn-warn:active {
+	background: darkred;
+}

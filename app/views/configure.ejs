@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
+
   <head>
-    <title>
-      Configure
-    </title>
+		<meta charset='utf-8'>
+    <title>Configure</title>
+    <meta name='description' content='none'>
+    <meta name='author' content='none'>
+
+		<style>
+		</style>
+
+		<link rel='stylesheet' href='public/css/main.ui.css' />
   </head>
+
   <body style='text-align: center'>
-    <div>
-      <h3>Configure Device</h3>
-    </div>
-    <hr>
+
+    <div class='page-title'>Configure Device</div>
+		
+		<!-- CONFIG FORM -->
     <form id='config-form' method='POST' action='/configure'>
-      <div>
-        <div><b>GPS Input</b></div>
+
+      <div class='section-area section-narrow'>
+        <div class='section-title'>GPS Input</div>
         <label for='baudrate'>Baud Rate</label>
         <select name='baudrate' id='baudrate'>
           <% var baudrates = [4800,9600,19200,38400,57600,115200] %>
@@ -23,28 +32,31 @@
           <% } %>
         </select>
       </div>
-      <hr>
-      <div>
-        <div><b>API Settings</b></div>
+			</br>
+			
+			<!-- API SETTINGS -->
+      <div class='section-area section-narrow'>
+        <div class='section-title'>API Settings</div>
         <div>
           <input type='radio' name='target' value='thingspeak' onchange='onAPITargetChange("thingspeak")'
             <% if (settings.api.target == 'thingspeak') { %>checked<% } %>>ThingSpeak</input>
           <input type='radio' name='target' value='seastate' onchange='onAPITargetChange("seastate")'
             <% if (settings.api.target == 'seastate') { %>checked<% } %>>SeaState</input>
         </div>
-        <div>
-          <div>
-            <label for='frequency'>Update every </label>
-            <select name='frequency'>
-              <% var freq = [3,5,10] %>
-              <% for (var i = 0; i < freq.length; i++) { %>
-                <option value=<%= freq[i] %>
-                  <% if (settings.api.frequency == freq[i]) { %>selected<% } %>><%= freq[i] %>
-                </option>
-              <% } %>
-            </select>
-            minutes
-        </div>
+
+				<div>
+					<label for='frequency'>Updates</label> every
+					<select name='frequency'>
+						<% var freq = [3,5,10] %>
+						<% for (var i = 0; i < freq.length; i++) { %>
+							<option value=<%= freq[i] %>
+								<% if (settings.api.frequency == freq[i]) { %>selected<% } %>><%= freq[i] %>
+							</option>
+						<% } %>
+					</select>
+					minutes
+				</div>
+
         <div id='api-target'>
           <% if (settings.api.target == 'thingspeak') { %>
             <% include thingspeak.settings.ejs %>
@@ -53,9 +65,10 @@
           <% } %>
         </div>
       </div>
-      <hr>
-      <a href='/'><button type='button' name='cancel'>Cancel</button></a>
-      <button type='submit'>Save</button>
+			</br>
+
+      <button class='btn btn-normal' type='submit'>Apply</button>
+      <a href='/'><button class='btn btn-warn' type='button' name='cancel'>Cancel</button></a>
     </form>
 
     <!-- the form below is only used to create elements that will be swapped in the visible form -->
