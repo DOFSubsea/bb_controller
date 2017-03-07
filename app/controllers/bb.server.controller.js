@@ -75,11 +75,50 @@ var loadConfig = () => {
   }
 };
 
-var getGPSData = () => {
+var getGLLData = () => {
+  let fields = lastReceived.split(',');
+  if (fields.length !== 8) {
+    throw new Error ('Error parsing $GPGLL string: field count should be 8 - got '+fields.length);
+  }
+  //GPS time not system time
+  let time = Number(fields[5]);
+  let lat = {degrees: Number(fields[1].slice(0,2)), minutes: Number(fields[1].slice(2))};
+  //latitude as decimal degrees
+  let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);
+  //latitude direction (N,S)
+	let latDir = fields[2];
+  //GPS longitude split into degrees and decimal minutes
+	let lon = {degrees: Number(fields[3].slice(0,3)), minutes: Number(fields[3].slice(3))};
+  //longitude as decimal degrees
+  let lonDD = (lon.degrees + lon.minutes/60.0).toFixed(4);
+  //longitude direction (E,W)
+	let lonDir = fields[4];
+	let quality = fields[6] || 0;//if null or undefined is returned make sure 0 is set
+  
+  //inverse sign if longitude is W
+	if (lonDir === 'W') {
+    lon.degrees *= -1;
+		lonDD *= -1;
+	}
+  //inverse sign if latitude is S
+  if (latDir === 'S') {
+    lat.degrees *= -1;
+    latDD *= -1;
+  }
+
+  //do not accept the position data if quality is not A
+	if (quality !== 'A') {
+		throw new Error('GPS fix not valid');
+	}
+
+  return {time: time, lat: lat, lon: lon, latDD: latDD, lonDD: lonDD}
+}
+
+var getGGAData = () => {
   //parses the lastReceived data string which should be a NMEA $GPGGA string
 	let fields = lastReceived.split(',');
 	if (fields.length !== 15) {
-		throw new Error('Error parsing GPS data: field count should be 15 - got '+fields.length);
+		throw new Error('Error parsing $GPGGA string: field count should be 15 - got '+fields.length);
 	}
   //GPS time not system time
 	let time = Number(fields[1]);
@@ -99,9 +138,14 @@ var getGPSData = () => {
 
   //inverse sign if longitude is W
 	if (lonDir === 'W') {
-    lon.degress *= -1;
+    lon.degrees *= -1;
 		lonDD *= -1;
 	}
+  //inverse sign if latitude is S
+  if (latDir === 'S') {
+    lat.degrees *= -1;
+    latDD *= -1;
+  }
 
   //do not accept the position data if quality is 0
 	if (quality == 0) {
@@ -109,6 +153,20 @@ var getGPSData = () => {
 	}
 
 	return {time: time, lat: lat, lon: lon, latDD: latDD, lonDD: lonDD}
+};
+
+var getGPSData = () => {
+  let header = lastReceived.split(',')[0];
+  switch (header){
+    case '$GPGGA':
+      return getGGAData();
+      break;
+    case '$GPGLL':
+      return getGLLData();
+      break;
+    default:
+      throw new Error('Input string not supported: '+header);
+  }
 };
 
 var updateThingSpeak = () => {
@@ -122,7 +180,7 @@ var updateThingSpeak = () => {
         statusMessage = 'Unable to update ThingSpeak database: '+err.toString();
       } else {
         lastUpdateTime = Date.now();
-        statusMessage = 'Updated ThingSpeak database @ '+new Date().toLocaleString();
+        statusMessage = 'Updated ThingSpeak database @ '+ new Date().toTimeString();
       }
       updateInProgress = false;
     });
@@ -139,7 +197,7 @@ var updateSeaState = () => {
 	try {
     let data = getGPSData();
     lastUpdateTime = Date.now();
-    statusMessage = 'Updated SeaState database @ '+new Date().toLocaleString();
+    statusMessage = 'Updated SeaState database @ '+new Date().toTimeString();
     lastUpdateTime = Date.now();
     updateInProgress = false;
 	} catch (e) {
@@ -189,7 +247,7 @@ exports.init = () => {
     lastReceived = data;
     lastReceivedTime = Date.now();
     const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-    //const freq = 5000;//5 seconds for testings
+    //const freq = 5000;//5 seconds for testing
     if (Date.now() - lastUpdateTime > freq) {
       updateRemoteDatabase();
     }
