@@ -5,44 +5,186 @@
     <title>Status</title>
     <meta name='description' content='none'>
     <meta name='author' content='none'>
+
+		<style>
+			span {
+				display: inline-block;
+			}
+			body {
+				background-color: whitesmoke;
+				font-family: 'Courier New','Monaco','San Serif';
+			}
+			.page-title {
+				display: inline-block;
+				padding: 0px 10px 0px 10px;
+				margin: 5px 0px 5px 0px;
+				font-size: 2.25em;
+				font-weight: bold;
+				text-shadow: 2px 2px darkgray;
+			}
+			.section-area {
+				margin: 0 auto;
+				padding: 5px 0px 5px 0px;
+				background-color: lightgray;
+				border-style: outset;
+				border-width: 3px;
+				border-radius: 3px;
+				overflow: hidden;
+			}
+			.section-narrow {
+				width: 30%;
+			}
+			.section-wide {
+				width: 50%;
+			}
+			.section-wider {
+				width: 75%;
+			}
+			.section-title {
+				color: darkblue;
+				font-size: 1.15em;
+				font-weight: bold;
+				text-shadow: 1px 1px white;
+			}
+			.section-item-name {
+				font-weight: bold;
+				text-align: right;
+				min-width: 30%;
+				padding-right: 5px;
+			}
+			.section-item-value {
+				min-width:45%;
+				text-align: left;
+				text-decoration: underline;
+			}
+			.number-large {
+				font-size: 1.25em;
+				font-weight: bold;
+			}
+			.btn {
+				min-width: 64px;
+				height: 33px;
+				border-style: outset;
+				border-radius: 5px;
+				border-width: 2px;
+				text-shadow: 1px 1px gray;
+				font-family: 'Courier New','Monaco','San Serif';
+				font-size: 1em;
+			}
+			.btn:focus {
+				outline: none;
+			}
+			.btn:active {
+				border-style: inset;
+			}
+			.btn-normal {
+				background-color: darkgreen;
+				color: white;
+			}
+			.btn-normal:hover {
+				background-color: green;
+			}
+			.btn-normal:active {
+				background-color: darkgreen;
+			}
+			.btn-warn {
+				background-color: darkred;
+				color: white;
+			}
+			.btn-warn:hover {
+				background-color: crimson;
+			}
+			.btn-warn:active {
+				background: darkred;
+			}
+
+		</style>
+
   </head>
   <body style='text-align: center;'>
+
     <div>
-      <h3>Device Status</h3>
-      <hr>
+      <div class='page-title'>Device Status</div>
+			<div class='section-area section-wide'>
+				<div class='section-title'>Status Message</div>
+				<div id='status-message'>Getting status...</div>
+			</div>
+			</br>
       <div>
-        <div><b>Port:</b> <%= settings.serial.port %></div>
-        <div><b>Baud:</b> <%= settings.serial.baudrate %></div>
+
+				<!-- SERIAL PORT SECTION -->
+				<div class='section-area section-narrow'>
+					<div class='section-title'>Serial Port</div>
+					<div>
+						<span class='section-item-name'>Port:</span><span class='section-item-value'><%= settings.serial.port %></span>
+					</div>
+					<div>
+						<span class='section-item-name'>Baud:</span><span class='section-item-value'><%= settings.serial.baudrate %></span>
+					</div>
+				</div>
         </br>
-        <div><b>Target:</b> <%= settings.api.target.toUpperCase() %></div>
-        <% if (settings.api.target == 'thingspeak') { %>
-          <div><b>Channel:</b> <%= settings.api.channel %></div>
-          <div><b>API Key:</b> <%= settings.api.key %></div>
-        <% } else { %>
-          <div><b>Vessel ID:</b> <%= settings.api.vin %></div>
-        <% } %>
-        <div>Updates every <b style='font-size: 1.25em;'><%= settings.api.frequency %></b> minutes</div>
-        <hr>
-        <div><b>Incoming Data</b></div>
-        <div id='last-received'>Getting GPS input data...</div>
-        <hr>
-        <div><b>Status Message</b></div>
-        <div id='status-message'>Getting status...</div>
+
+				<!-- API SECTION -->
+				<div class='section-area section-narrow'>
+					<div class='section-title'>API</div>
+					<div>
+						<span class='section-item-name'>Target:</span><span class='section-item-value'><%= settings.api.target.toUpperCase() %></span>
+					</div>
+					<% if (settings.api.target == 'thingspeak') { %>
+						<div>
+							<span class='section-item-name'>Channel:</span><span class='section-item-value'><%= settings.api.channel %></span>
+						</div>
+						<div>
+							<span class='section-item-name'>API Key:</span><span class='section-item-value'><%= settings.api.key %></span>
+						</div>
+					<% } else { %>
+						<div>
+							<span class='section-item-name'>Vessel ID:</span><span><%= settings.api.vin %></span>
+						</div>
+					<% } %>
+					<div>
+						<span class='section-item-name'>Updates:</span><span class='section-item-value'>Every <%= settings.api.frequency %>  minutes</span>
+					</div>
+				</div>
+				</br>
+
+				<!-- INCOMING DATA SECTION -->
+				<div class='section-area section-wider'>
+					<div class='section-title'>GPS Input Stream</div>
+					<span id='last-received'>Getting GPS input data...</span>
+				</div>
       </div>
       <hr>
+
+		<!-- BUTTONS -->
     <div>
-      <a href='/configure'><button>Configure</button></a>
-      <a href='/restart'><button>Restart Device</button></a>
+      <a href='/configure'><button class='btn btn-normal'>Configure Device</button></a>
+      <button onclick='confirmRestart()' class='btn btn-warn'>Restart Device</button>
     </div>
+
+		<!-- RESTART TIME COUNTER -->
+		<div>
+			</br>
+			<div>This device is scheduled to restart automatically in <span style='font-weight: bold;' id='time-left-to-restart'>---</span> seconds.</div>
+		</div>
+
+		<!-- SCRIPT -->
     <script type='text/javascript'>
-      let getDeviceStatus = () => {
+			var confirmRestart = () => {
+				if (window.confirm('Confirm device restart.')) {
+					window.location = '/restart';
+				}
+			}
+      var getDeviceStatus = () => {
         let xhr = new XMLHttpRequest();
         xhr.onreadystatechange = function() {
           if (this.readyState === 4 && this.status < 400){
             let status = JSON.parse(this.responseText);
             let lastRecieved = document.getElementById('last-received');
+						let timeToRestartMin = document.getElementById('time-left-to-restart');
             let message = document.getElementById('status-message');
             lastRecieved.innerHTML = status.lastReceived;
+						timeToRestartMin.innerHTML = Math.floor(status.nextRestartMillis/1000);
             message.innerHTML = status.statusMessage;
 					}
         }
@@ -51,5 +193,6 @@
       }
       setInterval(getDeviceStatus, 1000);
     </script>
+
   </body>
 </html>
