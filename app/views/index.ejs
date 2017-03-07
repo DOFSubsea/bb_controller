@@ -87,10 +87,10 @@
           if (this.readyState === 4 && this.status < 400){
             let status = JSON.parse(this.responseText);
             let lastRecieved = document.getElementById('last-received');
-						let timeToRestartMin = document.getElementById('time-left-to-restart');
+						let timeToRestart = document.getElementById('time-left-to-restart');
             let message = document.getElementById('status-message');
             lastRecieved.innerHTML = status.lastReceived;
-						timeToRestartMin.innerHTML = Math.floor(status.nextRestartMillis/1000);
+						timeToRestart.innerHTML = Math.floor(status.nextRestart);
             message.innerHTML = status.statusMessage;
 					}
         }
