@@ -5,7 +5,7 @@ const MAX_UPTIME = 8.64e7;//24 hours
 
 var SerialPort = require('serialport'),
     ser = null,
-		nextRestart = Date.now()+MAX_UPTIME,
+		nextRestart = MAX_UPTIME/1000,
     lastReceived = "No GPS data received",
     lastReceivedTime = Date.now(),
 		lastUpdateTime = Date.now(),
@@ -245,7 +245,7 @@ exports.readStatus = (req, res) => {
     lastReceived: lastReceived,
     lastReceivedTime: lastReceivedTime,
     lastUpdateTime: lastUpdateTime,
-		nextRestartMillis: nextRestart - Date.now(),
+		nextRestart: nextRestart,
     statusMessage: statusMessage
   });
 };
@@ -260,3 +260,5 @@ exports.isOpen = (req, res) => {
  * causing the device/software to not work properly
  */
 setTimeout(restartDevice, MAX_UPTIME);
+//set an interval so nextRestart is decremented and reported in readStatus()
+setInterval(() => {console.log(nextRestart--)}, 1000);
