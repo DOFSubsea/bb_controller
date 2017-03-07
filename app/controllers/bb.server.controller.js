@@ -15,7 +15,7 @@ var SerialPort = require('serialport'),
     lastReceivedTime = Date.now(),
 		lastUpdateTime = Date.now(),
     updateInProgress = false,
-    statusMessage = 'Device started: '+new Date().toLocaleString(),
+    statusMessage = 'Device has been initialized',
     configFilePath = process.cwd()+'/config/bb.config.json',
     config = {};
 
@@ -231,27 +231,31 @@ exports.init = () => {
    * and define on('event') functions
    */
   loadConfig();
-  console.log('initializing serial port');
-  ser = new SerialPort(config.serial.port,
-  {
-    baudRate: Number(config.serial.baudrate),
-    parser: SerialPort.parsers.readline('\n')
-  });
-         
-  ser.on('error', (err) => {
-    statusMessage = err.message;
-    console.log(err);
-  });
+	try {
+		ser = new SerialPort(config.serial.port,
+		{
+			baudRate: Number(config.serial.baudrate),
+			parser: SerialPort.parsers.readline('\n')
+		});
+					 
+		ser.on('error', (err) => {
+			statusMessage = err.message;
+			console.log(err);
+		});
 
-  ser.on('data', (data) => {
-    lastReceived = data;
-    lastReceivedTime = Date.now();
-    const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-    //const freq = 5000;//5 seconds for testing
-    if (Date.now() - lastUpdateTime > freq) {
-      updateRemoteDatabase();
-    }
-  });
+		ser.on('data', (data) => {
+			lastReceived = data;
+			lastReceivedTime = Date.now();
+			const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+			//const freq = 5000;//5 seconds for testing
+			if (Date.now() - lastUpdateTime > freq) {
+				updateRemoteDatabase();
+			}
+		});
+	} catch (e) {
+		console.log(e);
+		statusMessage = e.message;
+	}
 };
 
 exports.updateConfig = (req, res) => {
