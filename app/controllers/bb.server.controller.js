@@ -1,7 +1,12 @@
 "use strict";
 
-const MAX_TIMEOUT = 5000;//5 seconds
-const MAX_UPTIME = 8.64e7;//24 hours
+const MAX_TIMEOUT = 5000;//5 seconds in milliseconds
+/**
+ * NOTE: MAX_UPTIME is used to restart the device every 24 hours - if you change this
+ * to a very short period of time, all the devices will go into a bootloop that may not
+ * be able to be stopped.
+ */
+const MAX_UPTIME = 8.64e7;//24 hours in milliseconds
 
 var SerialPort = require('serialport'),
     ser = null,
@@ -255,10 +260,25 @@ exports.isOpen = (req, res) => {
 };
 
 /**
- * Restart server manually every MAX_UPTIME in case
+ * Restart the server manually every MAX_UPTIME in case
  * the UARTs hang or there is a network error that is
  * causing the device/software to not work properly
+ * 
+ * Use a setInterval fn to decrement nextRestart and can be reported
+ * in readStatus() and restart the device when nextRestart <= 0
+ * 
+ * NOTE: if the server has completely crashed, it will not be
+ * restarted until the next update from GitHub - if you suspect that
+ * a device server has crashed, clone the bb_controller repo from
+ * GitHub, add a new file named forcerestart.js and push the changes
+ * to GitHub. If forcerestart.js exists already, just delete it and
+ * push the changes to GitHub. The next time the device pulls from
+ * GitHub the changes will be detected and nodemon will restart the server.
+ * Otherwise the device probably does not have access to the Internet.
  */
-setTimeout(restartDevice, MAX_UPTIME);
-//set an interval so nextRestart is decremented and reported in readStatus()
-setInterval(() => {console.log(nextRestart--)}, 1000);
+setInterval(() => {
+  nextRestart--;
+  if (nextRestart <= 0) {
+    restartDevice();
+  }
+}, 1000);
