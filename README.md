@@ -19,13 +19,21 @@ Provides a Node server with routes that allow users to monitor and configure the
     Using <em>PuTTY (Windows)</em> or <em>Terminal (Mac)</em>, <code>ssh debian@device-ip-address</code>. You may need to enter <code>y</code> if prompted to trust the device connection. When prompted for a password, use the default <code>temppwd</code>.
   </li>
   <li>
-    Enable UART Ports
+    Change the default password - since this device will have access to the Internet its is not safe to leave the default password.
+    <ul>
+      <li>NOTE: When typing passwords, nothing will be displayed in the console.</li>
+      <li>Type <code>passwd</code> and press <code>Enter</code> - this command will prompt for the current password so type <code>temppwd</code></li> and press <code>Enter</code>.
+      <li>Set the new password to - <code>bbController</code></li>
+    </ul>
+  </li>
+  <li>
+    Enable UART ports
     <ul>
       <li>
         Enter the following command to begin editing the uEvt file. <code>sudo nano /boot/uEvt.txt</code>
       </li>
       <li>
-        Use the arrow keys to navigate to the bottom of the file and add the following line: <code>cape_enable=bone_capemgr.enable_partno=BB-UART2,BB-UART4</code>. Press <code>Ctrl-o</code> and then press <code>Enter</code> to save the changes.
+        Use the arrow keys to navigate to the bottom of the file and add the following line: <code>cape_enable=bone_capemgr.enable_partno=BB-UART2,BB-UART4</code>. Press <code>Ctrl-o</code> and then press <code>Enter</code> to save the changes, then press <code>Ctrl-x</code> to exit.
       </li>
     </ul>
   </li>
