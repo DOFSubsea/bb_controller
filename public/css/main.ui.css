@@ -8,6 +8,7 @@ body {
 input {
 	margin: 5px 3px 5px 3px;
 	border-radius: 5px;
+	text-align: center;
 }
 input:focus {
 	outline: none;
