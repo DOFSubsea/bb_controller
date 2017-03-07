@@ -19,8 +19,5 @@ module.exports = (app) => {
   .get((req, res) => {
 		res.render('restart');
 	})
-	.post((req, res) => {
-    res.send();
-		bbController.restartDevice();
-	});
+	.post(bbController.requestDeviceRestart);
 }

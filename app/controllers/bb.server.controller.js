@@ -5,6 +5,7 @@ const MAX_UPTIME = 8.64e7;//24 hours
 
 var SerialPort = require('serialport'),
     ser = null,
+		nextRestart = Date.now()+MAX_UPTIME,
     lastReceived = "No GPS data received",
     lastReceivedTime = Date.now(),
 		lastUpdateTime = Date.now(),
@@ -17,18 +18,6 @@ var fs = require('fs'),
     qs = require('querystring'),
     request = require('request'),
     exec = require('child_process').exec;
-
-var restartServer = () => {
-  console.log('restarting server');
-  /**
-   * The exec command purposely changes the nodemone.restart.js file because it will
-   * cause nodemon to restart the server when it detects the change to the file.
-   * This will allow the server to recover if it has crashed for some reason.
-   */
-  exec("echo var LAST_RESTART=\"'$(date)'\" > nodemon.restart.js", (err, stdout, stderr) => {
-    console.log(err, stdout, stderr);
-  });
-};
 
 var restartDevice = () => {
   //Sends the shutdown command to the operating system
@@ -164,7 +153,7 @@ var updateRemoteDatabase = () => {
    */
   if (updateInProgress) return;
   updateInProgress = true;
-  lastUpdateTime += 5000;
+  lastUpdateTime += 10000;
   statusMessage = 'Updating remote database.';
   if (config.api.target === 'thingspeak') {
     updateThingSpeak();
@@ -185,7 +174,7 @@ exports.init = () => {
     baudRate: Number(config.serial.baudrate),
     parser: SerialPort.parsers.readline('\n')
   });
-
+         
   ser.on('error', (err) => {
     statusMessage = err.message;
     console.log(err);
@@ -232,6 +221,11 @@ exports.updateConfig = (req, res) => {
   }
 };
 
+exports.requestDeviceRestart = (req, res) => {
+	res.send('attempting to restart device');
+	restartDevice();
+}
+
 exports.getConfig = () => {
   //used to provide access to the config var outside of this file
   return config;
@@ -251,6 +245,7 @@ exports.readStatus = (req, res) => {
     lastReceived: lastReceived,
     lastReceivedTime: lastReceivedTime,
     lastUpdateTime: lastUpdateTime,
+		nextRestartMillis: nextRestart - Date.now(),
     statusMessage: statusMessage
   });
 };
@@ -260,8 +255,8 @@ exports.isOpen = (req, res) => {
 };
 
 /**
- * Restart nodemon manually every MAX_UPTIME in case
- * it has crashed for any reason
+ * Restart server manually every MAX_UPTIME in case
+ * the UARTs hang or there is a network error that is
+ * causing the device/software to not work properly
  */
-setTimeout(restartServer, MAX_UPTIME);
-
+setTimeout(restartDevice, MAX_UPTIME);
