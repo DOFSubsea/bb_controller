@@ -276,7 +276,6 @@ exports.updateConfig = (req, res) => {
   const params = req.body;
   const serialPortChanged = config.serial.port != params.port;
   const serialBaudChanged = config.serial.baudrate != params.baudrate;
-  console.log(serialPortChanged, serialBaudChanged);
   config.serial.port = params.port;
   config.serial.baudrate = params.baudrate;
   config.api.frequency = params.frequency;
