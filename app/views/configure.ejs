@@ -22,15 +22,28 @@
 
       <div class='section-area section-narrow'>
         <div class='section-title'>GPS Input</div>
-        <label for='baudrate'>Baud Rate</label>
-        <select name='baudrate' id='baudrate'>
-          <% var baudrates = [4800,9600,19200,38400,57600,115200] %>
-          <% for (var i = 0; i < baudrates.length; i++) { %>
-            <option value=<%= baudrates[i] %>
-              <% if (baudrates[i] == settings.serial.baudrate) { %>selected<% } %>><%= baudrates[i] %>
-            </option>
-          <% } %>
-        </select>
+        <div>
+          <label for='port'>Port</label>
+          <select name='port' id='port'>
+            <% for (var i = 0; i < ports.length; i++) { %>
+              <% let name = ports[i].slice(ports[i].lastIndexOf('/')+1); %>
+              <option value=<%= ports[i] %>
+                <% if (ports[i] == settings.serial.port) { %>selected<% } %>><%= name %>
+              </option>
+            <% } %>
+          </select>
+        </div>
+        <div>
+          <label for='baudrate'>Baud Rate</label>
+          <select name='baudrate' id='baudrate'>
+            <% var baudrates = [4800,9600,19200,38400,57600,115200] %>
+            <% for (var i = 0; i < baudrates.length; i++) { %>
+              <option value=<%= baudrates[i] %>
+                <% if (baudrates[i] == settings.serial.baudrate) { %>selected<% } %>><%= baudrates[i] %>
+              </option>
+            <% } %>
+          </select>
+        </div>
       </div>
 			</br>
 			

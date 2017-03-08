@@ -160,10 +160,8 @@ var getGPSData = () => {
   switch (header){
     case '$GPGGA':
       return getGGAData();
-      break;
     case '$GPGLL':
       return getGLLData();
-      break;
     default:
       throw new Error('Input string not supported: '+header);
   }
@@ -225,37 +223,48 @@ var updateRemoteDatabase = () => {
   }
 };
 
+var handleSerialError = (err) => {
+  statusMessage = err.message;
+  console.log(err);
+};
+
+var handleSerialData = (data) => {
+  lastReceived = data;
+  lastReceivedTime = Date.now();
+  const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+  //const freq = 5000;//5 seconds for testing
+  if (Date.now() - lastUpdateTime > freq) {
+    updateRemoteDatabase();
+  }
+};
+
+var openSerialPort = () => {
+  try {
+    if (ser && ser.isOpen()) {
+      ser.close();
+    }
+    ser = new SerialPort(config.serial.port,
+    {
+      baudRate: Number(config.serial.baudrate),
+      parser: SerialPort.parsers.readline('\n')
+    });
+
+    ser.on('error', handleSerialError);
+    ser.on('data', handleSerialData);
+    
+  } catch (e) {
+    console.log(e);
+		statusMessage = e.message;
+  }
+}
+
 exports.init = () => {
   /**
    * load the configuration setup the serial ports
    * and define on('event') functions
    */
   loadConfig();
-	try {
-		ser = new SerialPort(config.serial.port,
-		{
-			baudRate: Number(config.serial.baudrate),
-			parser: SerialPort.parsers.readline('\n')
-		});
-					 
-		ser.on('error', (err) => {
-			statusMessage = err.message;
-			console.log(err);
-		});
-
-		ser.on('data', (data) => {
-			lastReceived = data;
-			lastReceivedTime = Date.now();
-			const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-			//const freq = 5000;//5 seconds for testing
-			if (Date.now() - lastUpdateTime > freq) {
-				updateRemoteDatabase();
-			}
-		});
-	} catch (e) {
-		console.log(e);
-		statusMessage = e.message;
-	}
+	openSerialPort();
 };
 
 exports.updateConfig = (req, res) => {
@@ -265,6 +274,10 @@ exports.updateConfig = (req, res) => {
    */
   console.log(req.body);
   const params = req.body;
+  const serialPortChanged = config.serial.port != params.port;
+  const serialBaudChanged = config.serial.baudrate != params.baudrate;
+  console.log(serialPortChanged, serialBaudChanged);
+  config.serial.port = params.port;
   config.serial.baudrate = params.baudrate;
   config.api.frequency = params.frequency;
   config.api.target = params.target;
@@ -276,16 +289,12 @@ exports.updateConfig = (req, res) => {
     config.api.key = params.apiKey;
   }
   saveConfig();
-  if (ser && ser.isOpen()) {
-    ser.update({baudRate: Number(params.baudrate)},
-    (err) => {
-      statusMessage = 'Configuration successfully updated.'
-	    res.redirect('/');
-    });
-  } else {
-    statusMessage = 'Configuration was updated but no serial port is available. Try restarting the device.'
-    res.redirect('/');
+  if (serialPortChanged || serialBaudChanged) {
+    console.log('changed serial port settings');
+    openSerialPort();
   }
+  statusMessage = 'Updated device settings';
+  res.redirect('/');
 };
 
 exports.requestDeviceRestart = () => {

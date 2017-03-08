@@ -1,4 +1,5 @@
-var bbController = require('../controllers/bb.server.controller');
+var bbController = require('../controllers/bb.server.controller'),
+    portHelper = require('../controllers/serial.port.helper');
 
 module.exports = (app) => {
   app.route('/')
@@ -11,7 +12,7 @@ module.exports = (app) => {
 
   app.route('/configure')
   .get((req, res) => {
-    res.render('configure', {settings: bbController.getConfig()});
+    res.render('configure', {settings: bbController.getConfig(), ports: portHelper.listPorts()});
   })
   .post(bbController.updateConfig);
 

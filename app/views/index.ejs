@@ -22,7 +22,8 @@
 				<div class='section-area section-narrow'>
 					<div class='section-title'>Serial Port</div>
 					<div>
-						<span class='section-item-name'>Port:</span><span class='section-item-value'><%= settings.serial.port %></span>
+            <% let portName = settings.serial.port.slice(settings.serial.port.lastIndexOf('/')+1); %>
+						<span class='section-item-name'>Port:</span><span class='section-item-value'><%= portName %></span>
 					</div>
 					<div>
 						<span class='section-item-name'>Baud:</span><span class='section-item-value'><%= settings.serial.baudrate %></span>
