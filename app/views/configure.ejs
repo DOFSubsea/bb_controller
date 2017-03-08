@@ -26,9 +26,9 @@
           <label for='port'>Port</label>
           <select name='port' id='port'>
             <% for (var i = 0; i < ports.length; i++) { %>
-              <% let name = ports[i].slice(ports[i].lastIndexOf('/')+1); %>
+              <% var portName = ports[i].slice(ports[i].lastIndexOf('/')+1); %>
               <option value=<%= ports[i] %>
-                <% if (ports[i] == settings.serial.port) { %>selected<% } %>><%= name %>
+                <% if (ports[i] == settings.serial.port) { %>selected<% } %>><%= portName %>
               </option>
             <% } %>
           </select>
