@@ -85,10 +85,12 @@ var getGLLData = () => {
       mm = Number(fields[5].slice(2,4)),
       ss = Number(fields[5].slice(4,6));
 
-  let time = new Date();
-  time.setHours(hh);
-  time.setMinutes(mm);
-  time.setSeconds(ss);
+  let dateTime = new Date();
+  dateTime.setHours(hh);
+  dateTime.setMinutes(mm);
+  dateTime.setSeconds(ss);
+
+  let time = dateTime.getTime();
 
   let lat = {degrees: Number(fields[1].slice(0,2)), minutes: Number(fields[1].slice(2))};
   //latitude as decimal degrees
@@ -129,7 +131,16 @@ var getGGAData = () => {
 		throw new Error('Error parsing $GPGGA string: field count should be 15 - got '+fields.length);
 	}
   //GPS time not system time
-	let time = Number(fields[1]);
+  let hh = Number(fields[1].slice(0,2)),
+      mm = Number(fields[1].slice(2,4)),
+      ss = Number(fields[1].slice(4,6));
+
+  let dateTime = new Date();
+  dateTime.setHours(hh);
+  dateTime.setMinutes(mm);
+  dateTime.setSeconds(ss);
+
+  let time = dateTime.getTime();
   //GPS latitude split into degrees and decimal minutes
 	let lat = {degrees: Number(fields[2].slice(0,2)), minutes: Number(fields[2].slice(2))};
   //latitude as decimal degrees
@@ -241,8 +252,8 @@ var isSupportedString = (str) => {
 }
 
 var handleSerialData = (data) => {
-  //const freq = 5000;//5 seconds for testing
-  const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+  const freq = 5000;//5 seconds for testing
+  //const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
   lastReceived = data;
   lastReceivedTime = Date.now();
   if (isSupportedString(data)){
