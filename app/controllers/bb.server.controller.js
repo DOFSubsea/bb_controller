@@ -252,8 +252,8 @@ var isSupportedString = (str) => {
 }
 
 var handleSerialData = (data) => {
-  const freq = 5000;//5 seconds for testing
-  //const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
+  //const freq = 5000;//5 seconds for testing
+  const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
   lastReceived = data;
   lastReceivedTime = Date.now();
   if (isSupportedString(data)){
