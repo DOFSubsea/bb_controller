@@ -81,7 +81,15 @@ var getGLLData = () => {
     throw new Error ('Error parsing $GPGLL string: field count should be 8 - got '+fields.length);
   }
   //GPS time not system time
-  let time = Number(fields[5]);
+  let hh = Number(fields[5].slice(0,2)),
+      mm = Number(fields[5].slice(2,4)),
+      ss = Number(fields[5].slice(4,6));
+
+  let time = new Date();
+  time.setHours(hh);
+  time.setMinutes(mm);
+  time.setSeconds(ss);
+
   let lat = {degrees: Number(fields[1].slice(0,2)), minutes: Number(fields[1].slice(2))};
   //latitude as decimal degrees
   let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);
@@ -228,13 +236,19 @@ var handleSerialError = (err) => {
   console.log(err);
 };
 
+var isSupportedString = (str) => {
+  return Boolean(/^\$GPGGA|^\$GPGLL/.exec(str));
+}
+
 var handleSerialData = (data) => {
+  //const freq = 5000;//5 seconds for testing
+  const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
   lastReceived = data;
   lastReceivedTime = Date.now();
-  const freq = config.api.frequency * 60 * 1000;//convert minutes to milliseconds
-  //const freq = 5000;//5 seconds for testing
-  if (Date.now() - lastUpdateTime > freq) {
-    updateRemoteDatabase();
+  if (isSupportedString(data)){
+    if (Date.now() - lastUpdateTime > freq) {
+      updateRemoteDatabase();
+    }
   }
 };
 
