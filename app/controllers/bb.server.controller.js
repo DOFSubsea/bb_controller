@@ -370,9 +370,11 @@ exports.isOpen = (req, res) => {
  * GitHub the changes will be detected and nodemon will restart the server.
  * Otherwise the device probably does not have access to the Internet.
  */
+/*
 setInterval(() => {
   nextRestart--;
   if (nextRestart <= 0) {
     restartDevice();
   }
 }, 1000);
+*/
