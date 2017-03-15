@@ -80,18 +80,9 @@ var getGLLData = () => {
   if (fields.length !== 8) {
     throw new Error ('Error parsing $GPGLL string: field count should be 8 - got '+fields.length);
   }
-  //GPS time not system time
-  let hh = Number(fields[5].slice(0,2)),
-      mm = Number(fields[5].slice(2,4)),
-      ss = Number(fields[5].slice(4,6));
-
-  let dateTime = new Date();
-  dateTime.setHours(hh);
-  dateTime.setMinutes(mm);
-  dateTime.setSeconds(ss);
-
-  let time = dateTime.getTime();
-
+  //time hhmmss.ss
+  let time = fields[5];
+  //GPS latitude split into degrees and decimal minutes
   let lat = {degrees: Number(fields[1].slice(0,2)), minutes: Number(fields[1].slice(2))};
   //latitude as decimal degrees
   let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);
@@ -130,18 +121,9 @@ var getGGAData = () => {
 	if (fields.length !== 15) {
 		throw new Error('Error parsing $GPGGA string: field count should be 15 - got '+fields.length);
 	}
-  //GPS time not system time
-  let hh = Number(fields[1].slice(0,2)),
-      mm = Number(fields[1].slice(2,4)),
-      ss = Number(fields[1].slice(4,6));
-
-  let dateTime = new Date();
-  dateTime.setHours(hh);
-  dateTime.setMinutes(mm);
-  dateTime.setSeconds(ss);
-
-  let time = dateTime.getTime();
-  //GPS latitude split into degrees and decimal minutes
+  //time hhmmss.ss
+  let time = fields[1];//hhmmss
+  //latitude split into degrees and decimal minutes
 	let lat = {degrees: Number(fields[2].slice(0,2)), minutes: Number(fields[2].slice(2))};
   //latitude as decimal degrees
   let latDD = (lat.degrees + lat.minutes/60.0).toFixed(4);
