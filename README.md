@@ -57,7 +57,7 @@ Provides a Node server with routes that allow users to monitor and configure the
         <code>cd ~/</code> - this will ensure you are in the <code>/home/debian</code> directory.
       </li>
       <li>
-        <code>git clone https://github.com/DOFSubsea/bb_controller</code> - this will pull the program files from GitHub.
+        <code>git clone https://github.com/DOFSubsea/bb_controller.git</code> - this will pull the program files from GitHub.
       </li>
       <li>
         <code>cd bb_controller</code> - go into the bb_controller directory created by the previous command.
