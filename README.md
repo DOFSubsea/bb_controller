@@ -16,7 +16,7 @@ Provides a Node server with routes that allow users to monitor and configure the
     Put the micro SD card into the Beaglebone and power it with the USB cable or an appropriate power supply. <em>If you are planning to communicate with the device through the USB cable, make sure the drivers are installed.</em>
   </li>
   <li>
-    Using <em>PuTTY (Windows)</em> or <em>Terminal (Mac)</em>, <code>ssh debian@device-ip-address</code>. You may need to enter <code>y</code> if prompted to trust the device connection. When prompted for a password, use the default <code>temppwd</code>.
+    Using <em>PuTTY (Windows)</em> or <em>Terminal (Mac)</em>, log into the beaglebone as the <b>debian</b> user - <code>ssh debian@192.168.7.2</code> which is the default IP address for beaglebones out of the box. You should ensure that the interface your are using has the IP address <code>192.168.7.1</code> (unless you are connecting through a COM/tty port). You may need to enter <code>y</code> if prompted to trust the device connection. When prompted for a password, use the default <code>temppwd</code>. It is <b>not</b> required to be logged in as root. Using the <code>sudo</code> command ensures that the <b>debian</b> user has elevated privaleges.
   </li>
   <li>
     Change the default password - since this device will have access to the Internet its is not safe to leave the default password.
@@ -65,6 +65,8 @@ Provides a Node server with routes that allow users to monitor and configure the
       <li>
         <code>npm install</code> - this installs all the dependencies required for bb_controller to run.
       </li>
+      <li>
+        <code>npm install -g nodemon</code> - this installs a package that helps detect code and configuration updates and will restart the server automatically so that the changes take effect immediately.
       <li>
         <code>sudo chmod +x start_bb_controller.sh</code> - this will ensure that the startup script has permission to execute.
       </li>
