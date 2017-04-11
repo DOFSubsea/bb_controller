@@ -33,6 +33,9 @@ Provides a Node server with routes that allow users to monitor and configure the
         Enter the following command to begin editing the uEvt file. <code>sudo nano /boot/uEvt.txt</code>
       </li>
       <li>
+        <b>NOTE:</b> it is important that there are no spaces in the line you add to the uEvt.txt file.
+      </li>
+      <li>
         Use the arrow keys to navigate to the bottom of the file and add the following line: <code>cape_enable=bone_capemgr.enable_partno=BB-UART2,BB-UART4</code>. Press <code>Ctrl-o</code> and then press <code>Enter</code> to save the changes, then press <code>Ctrl-x</code> to exit.
       </li>
     </ul>
